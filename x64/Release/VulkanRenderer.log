@@ -1,6 +1,8 @@
-﻿  main.cpp
+﻿cl : linha de comando  warning D9025: substituindo '/std:c++17' com '/std:c++latest'
+  main.cpp
   Gerando código
-  Previous IPDB not found, fall back to full compilation.
-  All 93 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  0 of 3348 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
   Finalizada a geração de código
   VulkanRenderer.vcxproj -> C:\Users\muted\source\repos\VulkanRenderer\x64\Release\VulkanRenderer.exe
