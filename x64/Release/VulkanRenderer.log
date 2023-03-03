@@ -1,8 +1,8 @@
 ﻿cl : linha de comando  warning D9025: substituindo '/std:c++17' com '/std:c++latest'
   main.cpp
   Gerando código
-  0 of 3348 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  4 of 3351 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    12 functions had inline decision re-evaluated but remain unchanged
   Finalizada a geração de código
   VulkanRenderer.vcxproj -> C:\Users\muted\source\repos\VulkanRenderer\x64\Release\VulkanRenderer.exe
