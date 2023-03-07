@@ -86,6 +86,7 @@ struct SwapChainSupportDetails {
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 color;
+    glm::vec3 normals;
     glm::vec2 texCoord;
 
     static VkVertexInputBindingDescription getBindingDescription() {
@@ -97,8 +98,8 @@ struct Vertex {
         return bindingDescription;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
-        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+    static std::array<VkVertexInputAttributeDescription, 4> getAttributeDescriptions() {
+        std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
 
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
@@ -112,14 +113,19 @@ struct Vertex {
 
         attributeDescriptions[2].binding = 0;
         attributeDescriptions[2].location = 2;
-        attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-        attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+        attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributeDescriptions[2].offset = offsetof(Vertex, normals);
+
+        attributeDescriptions[3].binding = 0;
+        attributeDescriptions[3].location = 3;
+        attributeDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[3].offset = offsetof(Vertex, texCoord);
 
         return attributeDescriptions;
     }
 
     bool operator==(const Vertex& other) const {
-        return pos == other.pos && color == other.color && texCoord == other.texCoord;
+        return pos == other.pos && color == other.color && texCoord == other.texCoord && normals == other.normals;
     }
 };
 
@@ -306,7 +312,9 @@ private:
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroyBuffer(device, uniformBuffers[i], nullptr);
+            vkDestroyBuffer(device, fragmentUniformBuffers[i], nullptr);
             vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+            vkFreeMemory(device, fragmentUniformBuffersMemory[i], nullptr);
         }
 
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);
@@ -1183,6 +1191,12 @@ private:
                     1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
                 };
 
+                vertex.normals = {
+                    attrib.normals[3 * index.normal_index + 0],
+                    attrib.normals[3 * index.normal_index + 1],
+                    attrib.normals[3 * index.normal_index + 2]
+                };
+
                 vertex.color = { 1.0f, 1.0f, 1.0f };
 
                 if (uniqueVertices.count(vertex) == 0) {
@@ -1517,15 +1531,15 @@ private:
 
     void updateFragmentUniformBuffer(uint32_t currentImage) {
         FragmentUniformBuffer frag{};
-        frag.albedo = glm::vec3(0.8, 0.2, 0.2);
+        frag.albedo = glm::vec3(1.0, 0.71, 0.29);
         frag.ao = 1.0f;
         frag.camPos = glm::vec3(2.0f, 2.0f, 2.0f);
-        frag.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        frag.lightPosition = glm::vec3(1.0f, 5.0f, 0.0f);
-        frag.metallic = 0.0f;
-        frag.roughness = 0.5f;
+        frag.lightColor = glm::vec3(10.0f, 10.0f, 10.0f);
+        frag.lightPosition = glm::vec3(0.0f, 4.0f, 0.0f);
+        frag.metallic = .4f;
+        frag.roughness = .4f;
 
-        memcpy(uniformBuffersMapped[currentImage], &frag, sizeof(frag));
+        memcpy(fragmentUniformBuffersMapped[currentImage], &frag, sizeof(frag));
     }
 
     void drawFrame() {
