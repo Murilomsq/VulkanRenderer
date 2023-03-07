@@ -137,6 +137,16 @@ struct UniformBufferObject {
     alignas(16) glm::mat4 proj;
 };
 
+struct FragmentUniformBuffer {
+    alignas(16) glm::vec3 camPos;
+    alignas(16) glm::vec3 albedo;
+    alignas(4) float metallic;
+    alignas(4) float roughness;
+    alignas(4) float ao;
+    alignas(16) glm::vec3 lightPosition;
+    alignas(16) glm::vec3 lightColor;
+};
+
 class HelloTriangleApplication {
 public:
     void run() {
@@ -198,6 +208,10 @@ private:
     std::vector<VkBuffer> uniformBuffers;
     std::vector<VkDeviceMemory> uniformBuffersMemory;
     std::vector<void*> uniformBuffersMapped;
+
+    std::vector<VkBuffer> fragmentUniformBuffers;
+    std::vector<VkDeviceMemory> fragmentUniformBuffersMemory;
+    std::vector<void*> fragmentUniformBuffersMapped;
 
     VkDescriptorPool descriptorPool;
     std::vector<VkDescriptorSet> descriptorSets;
@@ -628,14 +642,14 @@ private:
         uboLayoutBinding.pImmutableSamplers = nullptr;
         uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-        VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-        samplerLayoutBinding.binding = 1;
-        samplerLayoutBinding.descriptorCount = 1;
-        samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        samplerLayoutBinding.pImmutableSamplers = nullptr;
-        samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        VkDescriptorSetLayoutBinding fragLayoutBinding{};
+        fragLayoutBinding.binding = 1;
+        fragLayoutBinding.descriptorCount = 1;
+        fragLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        fragLayoutBinding.pImmutableSamplers = nullptr;
+        fragLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-        std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+        std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, fragLayoutBinding };
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
@@ -1233,13 +1247,26 @@ private:
 
             vkMapMemory(device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
         }
+
+        VkDeviceSize fragmentBufferSize = sizeof(FragmentUniformBuffer);
+
+        fragmentUniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+        fragmentUniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+        fragmentUniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            createBuffer(fragmentBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, fragmentUniformBuffers[i], fragmentUniformBuffersMemory[i]);
+
+            vkMapMemory(device, fragmentUniformBuffersMemory[i], 0, fragmentBufferSize, 0, &fragmentUniformBuffersMapped[i]);
+        }
+
     }
 
     void createDescriptorPool() {
         std::array<VkDescriptorPoolSize, 2> poolSizes{};
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-        poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
         VkDescriptorPoolCreateInfo poolInfo{};
@@ -1272,10 +1299,10 @@ private:
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(UniformBufferObject);
 
-            VkDescriptorImageInfo imageInfo{};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageInfo.imageView = textureImageView;
-            imageInfo.sampler = textureSampler;
+            VkDescriptorBufferInfo fragBufferInfo{};
+            fragBufferInfo.buffer = fragmentUniformBuffers[i];
+            fragBufferInfo.offset = 0;
+            fragBufferInfo.range = sizeof(FragmentUniformBuffer);
 
             std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -1291,9 +1318,9 @@ private:
             descriptorWrites[1].dstSet = descriptorSets[i];
             descriptorWrites[1].dstBinding = 1;
             descriptorWrites[1].dstArrayElement = 0;
-            descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             descriptorWrites[1].descriptorCount = 1;
-            descriptorWrites[1].pImageInfo = &imageInfo;
+            descriptorWrites[1].pBufferInfo = &fragBufferInfo;
 
             vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
         }
@@ -1488,6 +1515,19 @@ private:
         memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
     }
 
+    void updateFragmentUniformBuffer(uint32_t currentImage) {
+        FragmentUniformBuffer frag{};
+        frag.albedo = glm::vec3(0.8, 0.2, 0.2);
+        frag.ao = 1.0f;
+        frag.camPos = glm::vec3(2.0f, 2.0f, 2.0f);
+        frag.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        frag.lightPosition = glm::vec3(1.0f, 5.0f, 0.0f);
+        frag.metallic = 0.0f;
+        frag.roughness = 0.5f;
+
+        memcpy(uniformBuffersMapped[currentImage], &frag, sizeof(frag));
+    }
+
     void drawFrame() {
         vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -1503,6 +1543,7 @@ private:
         }
 
         updateUniformBuffer(currentFrame);
+        updateFragmentUniformBuffer(currentFrame);
 
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
