@@ -99,4 +99,7 @@ void main() {
    color = pow(color, vec3(1.0/2.2));  // gamma correction
 
    outColor = vec4(color, 1.0f);
+
+   //testing diffuse
+   //outColor = vec4(ambient + ubo.albedo * max(dot(L, N),0), 1.0); 
 }
