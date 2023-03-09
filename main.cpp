@@ -1963,8 +1963,8 @@ private:
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
         UniformBufferObject ubo{};
-        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.view = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f))*glm::lookAt(glm::vec3(3.0f, 3.0f, 4.0f), glm::vec3(-5.0f, -5.0f, -5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ubo.model = glm::mat4(1.0f);
+        ubo.view = glm::lookAt(glm::vec3(3.0f, 3.0f, 4.0f), glm::vec3(-5.0f, -5.0f, -5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
         ubo.proj[1][1] *= -1;
 
@@ -1973,13 +1973,13 @@ private:
 
     void updateFragmentUniformBuffer(uint32_t currentImage) {
         FragmentUniformBuffer frag{};
-        frag.albedo = glm::vec3(1.0, 0.71, 0.29);
+        frag.albedo = glm::vec3(1.0, 0.1, 0.0);
         frag.ao = 1.0f;
         frag.camPos = glm::vec3(2.0f, 2.0f, 2.0f);
-        frag.lightColor = glm::vec3(10.0f, 10.0f, 10.0f);
-        frag.lightPosition = glm::vec3(0.0f, 4.0f, 0.0f);
-        frag.metallic = .4f;
-        frag.roughness = .4f;
+        frag.lightColor = glm::vec3(100.0f, 100.0f, 100.0f);
+        frag.lightPosition = glm::vec3(0.0f, 7.0f, 0.0f);
+        frag.metallic = .0f;
+        frag.roughness = .6f;
 
         memcpy(fragmentUniformBuffersMapped[currentImage], &frag, sizeof(frag));
     }
