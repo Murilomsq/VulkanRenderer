@@ -29,5 +29,10 @@
     <None Include="shader.frag">
       <Filter>Arquivos de Recurso</Filter>
     </None>
+    <None Include="shaders\SkyboxShaders\skybox.frag" />
+    <None Include="shaders\SkyboxShaders\skybox.vert" />
+    <None Include="shaders\SkyboxShaders\compile.bat">
+      <Filter>Arquivos de Origem</Filter>
+    </None>
   </ItemGroup>
 </Project>

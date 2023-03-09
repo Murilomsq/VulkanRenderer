@@ -1,7 +1,1 @@
-﻿cl : linha de comando  warning D9025: substituindo '/std:c++17' com '/std:c++latest'
-  main.cpp
-C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(138,44): error C2065: 'Vertex': identificador não declarado
-C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(150,40): error C2065: 'Vertex': identificador não declarado
-C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(150,40): error C2132: erro de sintaxe: identificador inesperado
-C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(150,40): message : offsetof tem um significado interno; use /Zc:offsetof- para reverter para definição antiga, sem conformidade
-C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(1049,1): warning C4267: 'argumento': conversão de 'size_t' para 'int', possível perda de dados
+﻿LINK : fatal error LNK1201: erro de escrita no programa de banco de dados 'C:\Users\muted\source\repos\VulkanRenderer\x64\Debug\VulkanRenderer.pdb'; verifique por espaço em disco insuficiente, caminho inválido, ou privilégio insuficiente

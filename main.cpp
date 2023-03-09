@@ -248,26 +248,37 @@ private:
 
     //Skybox vertex data
     std::vector<PosVertex> skyboxVertices = {
-        {{-1.0f,  1.0f, -1.0f }},
-        {{-1.0f, -1.0f, -1.0f}},
-         {{1.0f, -1.0f, -1.0f}},
-         {{1.0f, -1.0f, -1.0f}},
-         {{1.0f,  1.0f, -1.0f}},
-        {{-1.0f,  1.0f, -1.0f}},
 
-        {{-1.0f, -1.0f,  1.0f}},
+
+        {{1.0f, -1.0f, -1.0f}},
+         {{1.0f, -1.0f,  1.0f}},
+         {{1.0f,  1.0f,  1.0f}},
+         {{1.0f,  1.0f,  1.0f}},
+         {{1.0f,  1.0f, -1.0f}},
+         {{1.0f, -1.0f, -1.0f}},
+
+          {{-1.0f, -1.0f,  1.0f}},
         {{-1.0f, -1.0f, -1.0f}},
         {{-1.0f,  1.0f, -1.0f}},
         {{-1.0f,  1.0f, -1.0f}},
         {{-1.0f,  1.0f,  1.0f}},
         {{-1.0f, -1.0f,  1.0f}},
 
-         {{1.0f, -1.0f, -1.0f}},
-         {{1.0f, -1.0f,  1.0f}},
-         {{1.0f,  1.0f,  1.0f}},
-         {{1.0f,  1.0f,  1.0f}},
-         {{1.0f,  1.0f, -1.0f}},
-         {{1.0f, -1.0f, -1.0f}},
+        
+        {{-1.0f,  1.0f,  1.0f}},
+{{-1.0f,  1.0f, -1.0f}},
+{{ 1.0f,  1.0f, -1.0f}},
+{{ 1.0f,  1.0f, -1.0f}},
+{{ 1.0f,  1.0f,  1.0f}},
+{{-1.0f,  1.0f,  1.0f}},
+       
+           {{-1.0f, -1.0f, -1.0f}},
+        {{-1.0f, -1.0f,  1.0f}},
+        {{ 1.0f, -1.0f, -1.0f}},
+        {{ 1.0f, -1.0f, -1.0f}},
+        {{-1.0f, -1.0f,  1.0f}},
+        {{ 1.0f, -1.0f,  1.0f }},
+         
 
         {{-1.0f, -1.0f,  1.0f}},
         {{-1.0f,  1.0f,  1.0f}},
@@ -276,19 +287,12 @@ private:
         {{1.0f, -1.0f,  1.0f}},
         {{-1.0f, -1.0f,  1.0f}},
 
-        {{-1.0f,  1.0f, -1.0f }},
-        {{ 1.0f,  1.0f, -1.0f}},
-        {{ 1.0f,  1.0f,  1.0f}},
-        {{1.0f,  1.0f,  1.0f}},
-        {{-1.0f,  1.0f,  1.0f}},
-        {{-1.0f,  1.0f, -1.0f}},
-
+        { {-1.0f,  1.0f, -1.0f }},
         {{-1.0f, -1.0f, -1.0f}},
-        {{-1.0f, -1.0f,  1.0f}},
-        {{ 1.0f, -1.0f, -1.0f}},
-        {{ 1.0f, -1.0f, -1.0f}},
-        {{-1.0f, -1.0f,  1.0f}},
-        {{ 1.0f, -1.0f,  1.0f }}
+         {{1.0f, -1.0f, -1.0f}},
+         {{1.0f, -1.0f, -1.0f}},
+         {{1.0f,  1.0f, -1.0f}},
+        {{-1.0f,  1.0f, -1.0f}}
     };
     VkBuffer skyboxVertexBuffer;
     VkDeviceMemory skyboxVertexBufferMemory;
@@ -345,6 +349,7 @@ private:
         createRenderPass();
         createDescriptorSetLayout();
         createGraphicsPipeline();
+        createSkyboxGraphicsPipeline();
         createCommandPool();
         createColorResources();
         createDepthResources();
@@ -956,8 +961,8 @@ private:
         VkPipelineDepthStencilStateCreateInfo depthStencil{};
         depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         depthStencil.depthTestEnable = VK_TRUE;
-        depthStencil.depthWriteEnable = VK_TRUE;
-        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+        depthStencil.depthWriteEnable = VK_FALSE; //Disabling depth writes for skybox
+        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
         depthStencil.depthBoundsTestEnable = VK_FALSE;
         depthStencil.stencilTestEnable = VK_FALSE;
 
@@ -1057,10 +1062,6 @@ private:
         }
     }
 
-    void createCubemap() {
-        //createImage(swapChainExtent.width, swapChainExtent.height, 1, msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory);
-    }
-
     void createColorResources() {
         VkFormat colorFormat = swapChainImageFormat;
 
@@ -1137,16 +1138,21 @@ private:
     }
 
     void createCubemapTextureImage() {
+        
         std::vector<int> texWidth(6), texHeight(6), texChannels(6);
+
+        stbi_set_flip_vertically_on_load(false);
         std::vector<stbi_uc*> pixels = {
-            stbi_load("textures/cubemap/back.jpg", &texWidth[0], &texHeight[0], &texChannels[0], STBI_rgb_alpha),
-            stbi_load("textures/cubemap/bottom.jpg", &texWidth[1], &texHeight[1], &texChannels[1], STBI_rgb_alpha),
-            stbi_load("textures/cubemap/front.jpg", &texWidth[2], &texHeight[2], &texChannels[2], STBI_rgb_alpha),
-            stbi_load("textures/cubemap/left.jpg", &texWidth[3], &texHeight[3], &texChannels[3], STBI_rgb_alpha),
-            stbi_load("textures/cubemap/right.jpg", &texWidth[4], &texHeight[4], &texChannels[4], STBI_rgb_alpha),
-            stbi_load("textures/cubemap/top.jpg", &texWidth[5], &texHeight[5], &texChannels[5], STBI_rgb_alpha)
+            stbi_load("textures/bluecloudcubemap/bluecloud_lf.jpg", &texWidth[0], &texHeight[0], &texChannels[0], 4),
+            stbi_load("textures/bluecloudcubemap/bluecloud_rt.jpg", &texWidth[1], &texHeight[1], &texChannels[1], 4),
+            stbi_load("textures/bluecloudcubemap/bluecloud_up.png", &texWidth[2], &texHeight[2], &texChannels[2], 4),
+            stbi_load("textures/bluecloudcubemap/bluecloud_dn.png", &texWidth[3], &texHeight[3], &texChannels[3], 4),
+            stbi_load("textures/bluecloudcubemap/bluecloud_ft.jpg", &texWidth[4], &texHeight[4], &texChannels[4], 4),
+            stbi_load("textures/bluecloudcubemap/bluecloud_bk.jpg", &texWidth[5], &texHeight[5], &texChannels[5], 4)
         };
-        // I swear i can optimize this with only one copy command, i wont mess around yet cause im still feeling way too raw with Vulkan
+        
+
+        createCubemapImage(texWidth[0], texHeight[0], mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, cubemapTextureImage, cubemapTextureImageMemory);
         for (size_t i = 0; i < 6; i++)
         {
             VkDeviceSize imageSize = texWidth[i] * texHeight[i] * 4;
@@ -1167,7 +1173,7 @@ private:
 
             stbi_image_free(pixels[i]);
 
-            createCubemapImage(texWidth[i], texHeight[i], mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, cubemapTextureImage, cubemapTextureImageMemory);
+            
 
             transitionImageLayout(cubemapTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
             copyBufferToImage(stagingBuffer, cubemapTextureImage, static_cast<uint32_t>(texWidth[i]), static_cast<uint32_t>(texHeight[i]), i);
@@ -1288,7 +1294,7 @@ private:
     }
 
     void createCubemapImageView() {
-        textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+        cubemapTextureImageView = createImageView(cubemapTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, 1, VK_IMAGE_VIEW_TYPE_CUBE, 6);
     }
 
     void createTextureSampler() {
@@ -1326,16 +1332,16 @@ private:
         samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
         samplerInfo.magFilter = VK_FILTER_LINEAR;
         samplerInfo.minFilter = VK_FILTER_LINEAR;
-        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         samplerInfo.anisotropyEnable = VK_TRUE;
         samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
         samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
         samplerInfo.unnormalizedCoordinates = VK_FALSE;
         samplerInfo.compareEnable = VK_TRUE;
         samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
         samplerInfo.minLod = 0.0f;
         samplerInfo.maxLod = static_cast<float>(mipLevels);
         samplerInfo.mipLodBias = 0.0f;
@@ -1365,7 +1371,7 @@ private:
         return imageView;
     }
 
-    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels, VkImageViewType viewType) {
+    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels, VkImageViewType viewType, int layerCount) {
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         viewInfo.image = image;
@@ -1375,7 +1381,7 @@ private:
         viewInfo.subresourceRange.baseMipLevel = 0;
         viewInfo.subresourceRange.levelCount = mipLevels;
         viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = 1;
+        viewInfo.subresourceRange.layerCount = layerCount;
 
         VkImageView imageView;
         if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
@@ -1431,7 +1437,7 @@ private:
         imageInfo.arrayLayers = 6;
         imageInfo.format = format;
         imageInfo.tiling = tiling;
-        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageInfo.initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         imageInfo.usage = usage;
         imageInfo.samples = numSamples;
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -1684,11 +1690,13 @@ private:
     }
 
     void createDescriptorPool() {
-        std::array<VkDescriptorPoolSize, 2> poolSizes{};
+        std::array<VkDescriptorPoolSize, 3> poolSizes{};
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
         poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+        poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        poolSizes[2].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
         VkDescriptorPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -1880,8 +1888,6 @@ private:
 
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
@@ -1896,18 +1902,31 @@ private:
         scissor.extent = swapChainExtent;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        VkBuffer vertexBuffers[] = { vertexBuffer };
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, skyboxGraphicsPipeline);
+
         VkBuffer skyboxVertexBuffers[] = { skyboxVertexBuffer };
-        VkDeviceSize offsets[] = { 0 };
         VkDeviceSize sbOffsets[] = { 0 };
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
-        vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, skyboxVertexBuffers, sbOffsets);
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+        //Drawing commands for Skybox pipeline
+
+        vkCmdDraw(commandBuffer, static_cast<uint32_t>(skyboxVertices.size()), 1, 0, 0);
+
+        //EndDraw
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+        VkBuffer vertexBuffers[] = { vertexBuffer };
+        VkDeviceSize offsets[] = { 0 };
+        
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+        //Drawing commands for PBR pipeline
 
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-        //vkCmdDraw(commandBuffer, static_cast<uint32_t>(skyboxVertices.size()), 1, 0, 0);
+
+        //EndDraw
 
         vkCmdEndRenderPass(commandBuffer);
 
@@ -1945,7 +1964,7 @@ private:
 
         UniformBufferObject ubo{};
         ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ubo.view = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f))*glm::lookAt(glm::vec3(3.0f, 3.0f, 4.0f), glm::vec3(-5.0f, -5.0f, -5.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
         ubo.proj[1][1] *= -1;
 
