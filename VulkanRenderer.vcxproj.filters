@@ -13,26 +13,80 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Arquivos de Origem\imgui">
+      <UniqueIdentifier>{74e544b2-5f87-44ac-a23c-afee2ab3c6fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Arquivos de Cabeçalho\imgui">
+      <UniqueIdentifier>{21f814f2-6f75-4f25-8bd7-15c2b2a5ef62}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Arquivos de Recurso</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="compile.bat">
-      <Filter>Arquivos de Recurso</Filter>
-    </None>
-    <None Include="shader.vert">
-      <Filter>Arquivos de Recurso</Filter>
-    </None>
-    <None Include="shader.frag">
-      <Filter>Arquivos de Recurso</Filter>
-    </None>
-    <None Include="shaders\SkyboxShaders\skybox.frag" />
-    <None Include="shaders\SkyboxShaders\skybox.vert" />
     <None Include="shaders\SkyboxShaders\compile.bat">
       <Filter>Arquivos de Origem</Filter>
     </None>
+    <None Include="compile.bat">
+      <Filter>Arquivos de Origem</Filter>
+    </None>
+    <None Include="shader.frag">
+      <Filter>Arquivos de Origem</Filter>
+    </None>
+    <None Include="shader.vert">
+      <Filter>Arquivos de Origem</Filter>
+    </None>
+    <None Include="shaders\SkyboxShaders\skybox.frag">
+      <Filter>Arquivos de Origem</Filter>
+    </None>
+    <None Include="shaders\SkyboxShaders\skybox.vert">
+      <Filter>Arquivos de Origem</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui.cpp">
+      <Filter>Arquivos de Origem\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_demo.cpp">
+      <Filter>Arquivos de Origem\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_draw.cpp">
+      <Filter>Arquivos de Origem\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_impl_glfw.cpp">
+      <Filter>Arquivos de Origem\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_impl_vulkan.cpp">
+      <Filter>Arquivos de Origem\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_tables.cpp">
+      <Filter>Arquivos de Origem\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_widgets.cpp">
+      <Filter>Arquivos de Origem\imgui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui.h">
+      <Filter>Arquivos de Cabeçalho\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_impl_glfw.h">
+      <Filter>Arquivos de Cabeçalho\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_impl_vulkan.h">
+      <Filter>Arquivos de Cabeçalho\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_internal.h">
+      <Filter>Arquivos de Cabeçalho\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imstb_rectpack.h">
+      <Filter>Arquivos de Cabeçalho\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imstb_textedit.h">
+      <Filter>Arquivos de Cabeçalho\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imstb_truetype.h">
+      <Filter>Arquivos de Cabeçalho\imgui</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
