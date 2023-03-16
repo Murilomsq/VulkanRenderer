@@ -1307,10 +1307,11 @@ private:
 
             vkDestroyBuffer(device, stagingBuffer, nullptr);
             vkFreeMemory(device, stagingBufferMemory, nullptr);
-        }
-        
 
-        generateMipmaps(cubemapTextureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth[0], texHeight[0], mipLevels);
+            transitionImageLayout(cubemapTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels);
+
+            generateMipmaps(cubemapTextureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth[0], texHeight[0], mipLevels);
+        }
     }
 
     void generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels) {
@@ -2214,6 +2215,7 @@ private:
 
         vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
         recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
+        vkResetCommandBuffer(imGUIcommandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
         recordImGUICommandBuffer(imGUIcommandBuffers[currentFrame], imageIndex, imGuiDrawData);
 
         VkSubmitInfo submitInfo{};
