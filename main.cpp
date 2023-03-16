@@ -259,7 +259,7 @@ private:
     //Uniform Buffer for fragmentshader
     FragmentUniformBuffer frag{
         glm::vec3(2.0f, 2.0f, 2.0f),
-        glm::vec3(1.0, 0.1, 0.0),
+        glm::vec3(1.0, 0.0, 0.0),
         .0f,
         .6f,
         1.0f,
@@ -271,8 +271,6 @@ private:
 
     //Skybox vertex data
     std::vector<PosVertex> skyboxVertices = {
-
-
         {{1.0f, -1.0f, -1.0f}},
          {{1.0f, -1.0f,  1.0f}},
          {{1.0f,  1.0f,  1.0f}},
