@@ -226,7 +226,6 @@ private:
     VkCommandPool commandPool;
     VkCommandPool imGUIcommandPool;
 
-    VkAllocationCallbacks* allocator = NULL;
 
     VkImage colorImage;
     VkDeviceMemory colorImageMemory;
@@ -526,7 +525,7 @@ private:
             createInfo.pNext = nullptr;
         }
 
-        if (vkCreateInstance(&createInfo, allocator, &instance) != VK_SUCCESS) {
+        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
             throw std::runtime_error("failed to create instance!");
         }
     }
@@ -593,7 +592,7 @@ private:
         pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
         pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
         pool_info.pPoolSizes = pool_sizes;
-        if (vkCreateDescriptorPool(device, &pool_info, allocator, &imGUIDescriptorPool)) {
+        if (vkCreateDescriptorPool(device, &pool_info, nullptr, &imGUIDescriptorPool)) {
             throw std::runtime_error("failed to create DEAR IMGUI descriptor pool");
         }
         
@@ -605,14 +604,13 @@ private:
         SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
         init_info.ImageCount = swapChainSupport.capabilities.minImageCount + 1;
         init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-        init_info.Allocator = allocator;
+        init_info.Allocator = nullptr;
         init_info.CheckVkResultFn = nullptr;
-        ImGui_ImplVulkan_Init(&init_info, imGuiRenderPass);
+        ImGui_ImplVulkan_Init(&init_info, renderPass);
 
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands(imGUIcommandPool);
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands(commandPool);
         ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
         endSingleTimeCommands(commandBuffer);
-
     }
 
     void createSurface() {
@@ -2038,7 +2036,7 @@ private:
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
 
-        vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+       
 
         VkViewport viewport{};
         viewport.x = 0.0f;
@@ -2127,7 +2125,8 @@ private:
 
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
-        //EndDraw
+        //Endnormal render pass
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
         vkCmdEndRenderPass(commandBuffer);
 
@@ -2209,13 +2208,11 @@ private:
         ImGui::NewFrame();
         ImGui::ShowDemoWindow();
         ImGui::Render();
-        ImDrawData* imGuiDrawData = ImGui::GetDrawData();
 
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
         vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
         recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
-        recordImGUICommandBuffer(imGUIcommandBuffers[currentFrame], imageIndex, imGuiDrawData);
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -2262,7 +2259,7 @@ private:
             QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
             ImGui_ImplVulkan_SetMinImageCount(MAX_FRAMES_IN_FLIGHT);
             ImGui_ImplVulkanH_CreateOrResizeWindow(instance, physicalDevice, device, &mainWindowData,
-                indices.graphicsFamily.value(), allocator, width, height, MAX_FRAMES_IN_FLIGHT);
+                indices.graphicsFamily.value(), nullptr, width, height, MAX_FRAMES_IN_FLIGHT);
             recreateSwapChain();
         }
         else if (result != VK_SUCCESS) {
