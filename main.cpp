@@ -256,6 +256,19 @@ private:
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
 
+    //Uniform Buffer for fragmentshader
+    FragmentUniformBuffer frag{
+        glm::vec3(2.0f, 2.0f, 2.0f),
+        glm::vec3(1.0, 0.1, 0.0),
+        .0f,
+        .6f,
+        1.0f,
+        glm::vec3(0.0f, 7.0f, 0.0f),
+        glm::vec3(100.0f, 100.0f, 100.0f),
+    };
+        
+       
+
     //Skybox vertex data
     std::vector<PosVertex> skyboxVertices = {
 
@@ -2082,8 +2095,6 @@ private:
 
 
         //IMGUI --------------------------------------------------------------
-
-
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
         vkCmdEndRenderPass(commandBuffer);
@@ -2130,15 +2141,6 @@ private:
     }
 
     void updateFragmentUniformBuffer(uint32_t currentImage) {
-        FragmentUniformBuffer frag{};
-        frag.albedo = glm::vec3(1.0, 0.1, 0.0);
-        frag.ao = 1.0f;
-        frag.camPos = glm::vec3(2.0f, 2.0f, 2.0f);
-        frag.lightColor = glm::vec3(100.0f, 100.0f, 100.0f);
-        frag.lightPosition = glm::vec3(0.0f, 7.0f, 0.0f);
-        frag.metallic = .0f;
-        frag.roughness = .6f;
-
         memcpy(fragmentUniformBuffersMapped[currentImage], &frag, sizeof(frag));
     }
 
@@ -2156,16 +2158,18 @@ private:
             throw std::runtime_error("failed to acquire swap chain image!");
         }
 
-        updateUniformBuffer(currentFrame);
-        updateFragmentUniformBuffer(currentFrame);
-
-        bool show_demo_window = true;
 
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
+
+        ImGui::SliderFloat("mettalic", &frag.metallic, 0.0f, 1.0f);
+        ImGui::SliderFloat("roughness", &frag.roughness, 0.0f, 1.0f);
+        ImGui::SliderFloat("ambient occlusion", &frag.ao, 0.0f, 1.0f);
+
         ImGui::Render();
+        updateUniformBuffer(currentFrame);
+        updateFragmentUniformBuffer(currentFrame);
 
         vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
