@@ -2215,7 +2215,6 @@ private:
 
         vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
         recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
-        vkResetCommandBuffer(imGUIcommandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
         recordImGUICommandBuffer(imGUIcommandBuffers[currentFrame], imageIndex, imGuiDrawData);
 
         VkSubmitInfo submitInfo{};

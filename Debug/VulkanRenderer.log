@@ -1,4 +1,13 @@
 ﻿cl : linha de comando  warning D9025: substituindo '/std:c++17' com '/std:c++latest'
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_glfw.cpp
+  imgui_impl_vulkan.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
   main.cpp
 C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(1305,1): warning C4267: 'argumento': conversão de 'size_t' para 'int', possível perda de dados
+  Gerando Código...
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflita com uso de outras bibliotecas; use /NODEFAULTLIB:library
   VulkanRenderer.vcxproj -> C:\Users\muted\source\repos\VulkanRenderer\x64\Debug\VulkanRenderer.exe
