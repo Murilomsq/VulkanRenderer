@@ -65,6 +65,9 @@
     <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_widgets.cpp">
       <Filter>Arquivos de Origem\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="vkimgui.cpp">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui.h">
@@ -87,6 +90,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imstb_truetype.h">
       <Filter>Arquivos de Cabeçalho\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="vkimgui.h">
+      <Filter>Arquivos de Origem</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

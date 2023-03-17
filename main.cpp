@@ -14,6 +14,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
+#include "vkimgui.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -193,6 +194,7 @@ public:
 
 private:
     GLFWwindow* window;
+    ImGuiVulkan imGuiVulkan;
 
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -218,7 +220,6 @@ private:
     VkPipeline graphicsPipeline;
 
     VkDescriptorPool imGUIDescriptorPool;
-    VkRenderPass imGuiRenderPass;
 
     VkPipelineLayout skyboxPipelineLayout;
     VkPipeline skyboxGraphicsPipeline;
@@ -369,7 +370,6 @@ private:
         createSwapChain();
         createImageViews();
         createRenderPass();
-        createImGUIRenderPass();
         createDescriptorSetLayout();
         createGraphicsPipeline();
         createSkyboxGraphicsPipeline();
@@ -429,6 +429,12 @@ private:
 
         vkDestroyPipeline(device, graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+
+        imGuiVulkan.cleanup();
+
+        vkDestroyPipeline(device, skyboxGraphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(device, skyboxPipelineLayout, nullptr);
+
         vkDestroyRenderPass(device, renderPass, nullptr);
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -561,63 +567,10 @@ private:
     }
 
     void initImGUI() {
-        // Setup Dear ImGui context
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-        ImGui::StyleColorsDark();
+        uint32_t imageCount = querySwapChainSupport(physicalDevice).capabilities.minImageCount + 1;
+        uint32_t queueFamily = findQueueFamilies(physicalDevice).graphicsFamily.value();
 
-
-        ImGui_ImplGlfw_InitForVulkan(window, true);
-        ImGui_ImplVulkan_InitInfo init_info = {};
-        init_info.Instance = instance;
-        init_info.PhysicalDevice = physicalDevice;
-        init_info.Device = device;
-
-        //retrieving queue family
-        QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
-
-        init_info.QueueFamily = indices.graphicsFamily.value();
-        init_info.Queue = presentQueue;
-        init_info.PipelineCache = VK_NULL_HANDLE;
-        
-        VkDescriptorPoolSize pool_sizes[] =
-        {
-            { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
-        };
-        VkDescriptorPoolCreateInfo pool_info = {};
-        pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-        pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-        pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
-        pool_info.pPoolSizes = pool_sizes;
-        if (vkCreateDescriptorPool(device, &pool_info, nullptr, &imGUIDescriptorPool)) {
-            throw std::runtime_error("failed to create DEAR IMGUI descriptor pool");
-        }
-        
-
-        init_info.DescriptorPool = imGUIDescriptorPool;
-        init_info.Subpass = 0;
-        init_info.MinImageCount = 2;
-
-        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
-        init_info.ImageCount = swapChainSupport.capabilities.minImageCount + 1;
-        init_info.MSAASamples = msaaSamples;
-        init_info.Allocator = nullptr;
-        init_info.CheckVkResultFn = nullptr;
-        ImGui_ImplVulkan_Init(&init_info, renderPass);
+        imGuiVulkan.init(window, instance, physicalDevice, device, queueFamily, presentQueue, imageCount, msaaSamples, renderPass, imGUIDescriptorPool);
 
         VkCommandBuffer commandBuffer = beginSingleTimeCommands(commandPool);
         ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
@@ -830,48 +783,6 @@ private:
 
         if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
             throw std::runtime_error("failed to create render pass!");
-        }
-    }
-
-    void createImGUIRenderPass() {
-     
-        VkAttachmentDescription attachment = {};
-        attachment.format = swapChainImageFormat;
-        attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-        attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-        VkAttachmentReference color_attachment = {};
-        color_attachment.attachment = 0;
-        color_attachment.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        VkSubpassDescription subpass = {};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &color_attachment;
-
-        VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.srcAccessMask = 0;  // or VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-        VkRenderPassCreateInfo info{};
-        info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        info.attachmentCount = 1;
-        info.pAttachments = &attachment;
-        info.subpassCount = 1;
-        info.pSubpasses = &subpass;
-        info.dependencyCount = 1;
-        info.pDependencies = &dependency;
-        if (vkCreateRenderPass(device, &info, nullptr, &imGuiRenderPass) != VK_SUCCESS) {
-            throw std::runtime_error("Could not create Dear ImGui's render pass");
         }
     }
 

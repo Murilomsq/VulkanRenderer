@@ -167,6 +167,7 @@
     <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_tables.cpp" />
     <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="vkimgui.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="compile.bat" />
@@ -184,6 +185,7 @@
     <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imstb_rectpack.h" />
     <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imstb_textedit.h" />
     <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imstb_truetype.h" />
+    <ClInclude Include="vkimgui.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
