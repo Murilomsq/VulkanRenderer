@@ -167,6 +167,8 @@
     <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_tables.cpp" />
     <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_widgets.cpp" />
     <ClCompile Include="command_buffer_utl.cpp" />
+    <ClCompile Include="cubemap.cpp" />
+    <ClCompile Include="img_buff_memory_utl.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="vkimgui.cpp" />
   </ItemGroup>
@@ -187,6 +189,8 @@
     <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imstb_textedit.h" />
     <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imstb_truetype.h" />
     <ClInclude Include="command_buffer_utl.h" />
+    <ClInclude Include="cubemap.h" />
+    <ClInclude Include="img_buff_memory_utl.h" />
     <ClInclude Include="vkimgui.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
