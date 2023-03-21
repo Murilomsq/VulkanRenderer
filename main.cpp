@@ -15,6 +15,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
 #include "vkimgui.h"
+#include "command_buffer_utl.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -37,7 +38,7 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-const std::string MODEL_PATH = "models/sphere.obj";
+const std::string MODEL_PATH = "models/bunny.obj";
 const std::string TEXTURE_PATH = "textures/viking_room.png";
 const std::string CUBEMAP_PATH = "textures/cubemap/";
 
@@ -195,6 +196,7 @@ public:
 private:
     GLFWwindow* window;
     ImGuiVulkan imGuiVulkan;
+    
 
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -225,8 +227,6 @@ private:
     VkPipeline skyboxGraphicsPipeline;
 
     VkCommandPool commandPool;
-    VkCommandPool imGUIcommandPool;
-
 
     VkImage colorImage;
     VkDeviceMemory colorImageMemory;
@@ -342,8 +342,6 @@ private:
 
 
     bool framebufferResized = false;
-
-
 
 
     void initWindow() {
@@ -570,11 +568,10 @@ private:
         uint32_t imageCount = querySwapChainSupport(physicalDevice).capabilities.minImageCount + 1;
         uint32_t queueFamily = findQueueFamilies(physicalDevice).graphicsFamily.value();
 
-        imGuiVulkan.init(window, instance, physicalDevice, device, queueFamily, presentQueue, imageCount, msaaSamples, renderPass, imGUIDescriptorPool);
+        imGuiVulkan.init(window, instance, physicalDevice, device, queueFamily, presentQueue, imageCount, 
+            msaaSamples, renderPass, imGUIDescriptorPool);
 
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands(commandPool);
-        ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-        endSingleTimeCommands(commandBuffer);
+        imGuiVulkan.createFontTexture(commandPool, graphicsQueue, device);
     }
 
     void createSurface() {
@@ -1092,7 +1089,6 @@ private:
 
     void createCommandPools() {
         createCommandPool(commandPool);
-        createCommandPool(imGUIcommandPool);
     }
 
     void createCommandPool(VkCommandPool& cmdPool) {
@@ -1243,7 +1239,7 @@ private:
             throw std::runtime_error("texture image format does not support linear blitting!");
         }
 
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = appBeginSingleTimeCommands();
 
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1318,7 +1314,7 @@ private:
             0, nullptr,
             1, &barrier);
 
-        endSingleTimeCommands(commandBuffer);
+        appEndSingleTimeCommands(commandBuffer);
     }
 
     VkSampleCountFlagBits getMaxUsableSampleCount() {
@@ -1510,7 +1506,7 @@ private:
     }
 
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = appBeginSingleTimeCommands();
 
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1555,11 +1551,11 @@ private:
             1, &barrier
         );
 
-        endSingleTimeCommands(commandBuffer);
+        appEndSingleTimeCommands(commandBuffer);
     }
 
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = appBeginSingleTimeCommands();
 
         VkBufferImageCopy region{};
         region.bufferOffset = 0;
@@ -1578,11 +1574,11 @@ private:
 
         vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-        endSingleTimeCommands(commandBuffer);
+        appEndSingleTimeCommands(commandBuffer);
     }
 
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, int layer) {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = appBeginSingleTimeCommands();
 
         VkBufferImageCopy region{};
         region.bufferOffset = 0;
@@ -1601,7 +1597,7 @@ private:
 
         vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-        endSingleTimeCommands(commandBuffer);
+        appEndSingleTimeCommands(commandBuffer);
     }
 
     void loadModel() {
@@ -1626,10 +1622,10 @@ private:
                     attrib.vertices[3 * index.vertex_index + 2]
                 };
 
-                vertex.texCoord = {
+                /*vertex.texCoord = {
                     attrib.texcoords[2 * index.texcoord_index + 0],
                     1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-                };
+                };*/
 
                 vertex.normals = {
                     attrib.normals[3 * index.normal_index + 0],
@@ -1841,68 +1837,27 @@ private:
         vkBindBufferMemory(device, buffer, bufferMemory, 0);
     }
 
-
-    VkCommandBuffer beginSingleTimeCommands(VkCommandPool cmdPool) {
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = cmdPool;
-        allocInfo.commandBufferCount = 1;
-
-        VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-        return commandBuffer;
+    /// <summary>
+    /// Abstracting command_buffer_utl.cpp beginSingleTimeCommands() to use in our application
+    /// </summary>
+    VkCommandBuffer appBeginSingleTimeCommands(){
+        return beginSingleTimeCommands(commandPool, device);
     }
-
-
-    VkCommandBuffer beginSingleTimeCommands() {
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = commandPool;
-        allocInfo.commandBufferCount = 1;
-
-        VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-        return commandBuffer;
-    }
-
-    void endSingleTimeCommands(VkCommandBuffer commandBuffer) {
-        vkEndCommandBuffer(commandBuffer);
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
-
-        vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(graphicsQueue);
-
-        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    /// <summary>
+   /// Abstracting command_buffer_utl.cpp endSingleTimeCommands() to use in our application
+   /// </summary>
+    void appEndSingleTimeCommands(VkCommandBuffer commandBuffer) {
+        endSingleTimeCommands(commandBuffer, graphicsQueue, device, commandPool);
     }
 
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = appBeginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
         copyRegion.size = size;
         vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-        endSingleTimeCommands(commandBuffer);
+        appEndSingleTimeCommands(commandBuffer);
     }
 
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
@@ -1920,7 +1875,6 @@ private:
 
     void createAllCommandBuffers() {
         createCommandBuffers(commandBuffers, commandPool);
-        createCommandBuffers(imGUIcommandBuffers, imGUIcommandPool);
     }
 
     void createCommandBuffers(std::vector<VkCommandBuffer>& cmdBuff, VkCommandPool& cmdPool) {

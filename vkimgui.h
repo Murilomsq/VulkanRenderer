@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
+#include "command_buffer_utl.h"
 
 #include <stdexcept>
 #include <mutex>
@@ -11,20 +12,20 @@
 class ImGuiVulkan
 {
 private:
-    VkDescriptorPool* _imGUIDescriptorPool;
-    VkDevice* _device;
+    VkDescriptorPool _imGUIDescriptorPool;
+    VkDevice _device;
     std::mutex _mutex;
 
 public:
-    void init(GLFWwindow* window, VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, uint32_t queueFamily, VkQueue presentQueue,
+    void init(GLFWwindow* window, VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice& device, uint32_t queueFamily, VkQueue presentQueue,
         uint32_t imageCount, VkSampleCountFlagBits msaaSamples, VkRenderPass renderPass, VkDescriptorPool& imGUIDescriptorPool)
     {
         //Ensure only one thread executes initing at a time
         _mutex.lock();
 
         //Setup pointers to ImguiVulkan private attributes
-        _imGUIDescriptorPool = &imGUIDescriptorPool;
-        _device = &device;
+        _imGUIDescriptorPool = imGUIDescriptorPool;
+        _device = device;
 
 
         // Setup Dear ImGui context
@@ -80,13 +81,19 @@ public:
         init_info.Allocator = nullptr;
         init_info.CheckVkResultFn = nullptr;
         ImGui_ImplVulkan_Init(&init_info, renderPass);
+
         _mutex.unlock();
     }
     void cleanup() {
 
         _mutex.lock(); //Ensure only one thread executes cleanup at a time
-        vkDestroyDescriptorPool(*_device, *_imGUIDescriptorPool, nullptr);
+        vkDestroyDescriptorPool(_device, _imGUIDescriptorPool, nullptr);
         _mutex.unlock();
+    }
+    void createFontTexture(VkCommandPool commandPool, VkQueue queue, VkDevice device) {
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands(commandPool, device);
+        ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+        endSingleTimeCommands(commandBuffer, queue, device, commandPool);
     }
 
 };
