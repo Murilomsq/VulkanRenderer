@@ -230,7 +230,7 @@ private:
 
     VkCommandPool commandPool;
 
-    Cubemap cubemap;
+    Cubemap* cubemap = nullptr;
 
     VkImage colorImage;
     VkDeviceMemory colorImageMemory;
@@ -245,11 +245,6 @@ private:
     VkDeviceMemory textureImageMemory;
     VkImageView textureImageView;
     VkSampler textureSampler;
-
-    VkImage cubemapTextureImage;
-    VkDeviceMemory cubemapTextureImageMemory;
-    VkImageView cubemapTextureImageView;
-    VkSampler cubemapSampler;
 
     ImGui_ImplVulkanH_Window mainWindowData;
 
@@ -382,9 +377,7 @@ private:
         createTextureImage();
         createTextureImageView();
         createTextureSampler();
-       // createCubemapTextureImage();
-        //appCreateCubemapImageView();
-        //createCubeMapSampler();
+        createCubemap();
         loadModel();
         createVertexBuffer();
         createIndexBuffer();
@@ -451,8 +444,8 @@ private:
         vkDestroySampler(device, textureSampler, nullptr);
         vkDestroyImageView(device, textureImageView, nullptr);
 
-        vkDestroySampler(device, cubemapSampler, nullptr);
-        vkDestroyImageView(device, cubemapTextureImageView, nullptr);
+        vkDestroySampler(device, cubemap->cubemapSampler, nullptr);
+        vkDestroyImageView(device, cubemap->cubemapTextureImageView, nullptr);
 
         vkDestroyImage(device, textureImage, nullptr);
         vkFreeMemory(device, textureImageMemory, nullptr);
@@ -1108,6 +1101,10 @@ private:
         }
     }
 
+    void createCubemap() {
+        cubemap = new Cubemap(device, physicalDevice, mipLevels, commandPool, graphicsQueue);
+    }
+
     void createColorResources() {
         VkFormat colorFormat = swapChainImageFormat;
 
@@ -1202,10 +1199,6 @@ private:
         textureImageView = appCreateImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
     }
 
-    void appCreateCubemapImageView() {
-        cubemapTextureImageView = appCreateImageView(cubemapTextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, 1, VK_IMAGE_VIEW_TYPE_CUBE, 6);
-    }
-
     void createTextureSampler() {
         VkPhysicalDeviceProperties properties{};
         vkGetPhysicalDeviceProperties(physicalDevice, &properties);
@@ -1232,37 +1225,6 @@ private:
             throw std::runtime_error("failed to create texture sampler!");
         }
     }
-    
-    void createCubeMapSampler() {
-        VkPhysicalDeviceProperties properties{};
-        vkGetPhysicalDeviceProperties(physicalDevice, &properties);
-
-        VkSamplerCreateInfo samplerInfo{};
-        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerInfo.magFilter = VK_FILTER_LINEAR;
-        samplerInfo.minFilter = VK_FILTER_LINEAR;
-        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerInfo.anisotropyEnable = VK_TRUE;
-        samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-        samplerInfo.unnormalizedCoordinates = VK_FALSE;
-        samplerInfo.compareEnable = VK_TRUE;
-        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-        samplerInfo.minLod = 0.0f;
-        samplerInfo.maxLod = static_cast<float>(mipLevels);
-        samplerInfo.mipLodBias = 0.0f;
-
-        if (vkCreateSampler(device, &samplerInfo, nullptr, &cubemapSampler) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create texture sampler!");
-        }
-    }
-
-    void appCreateCubemapImageView() {
-        cubemap.createCubemapImageView(cubemapTextureImageView, cubemapTextureImage);
-    }
 
     void appCreateImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
         VkImage& image, VkDeviceMemory& imageMemory) {
@@ -1270,10 +1232,10 @@ private:
     }
 
     VkImageView appCreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels, VkImageViewType viewType, int layerCount) {
-        createImageView(device, image, format, aspectFlags, mipLevels, viewType, layerCount);
+        return createImageView(device, image, format, aspectFlags, mipLevels, viewType, layerCount);
     }
     VkImageView appCreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels) {
-        createImageView(device, image, format, aspectFlags, mipLevels);
+        return createImageView(device, image, format, aspectFlags, mipLevels);
     }
 
     void appTransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {//
@@ -1474,8 +1436,8 @@ private:
 
             VkDescriptorImageInfo cubemapImageInfo{};
             cubemapImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            cubemapImageInfo.imageView = cubemapTextureImageView;
-            cubemapImageInfo.sampler = cubemapSampler;
+            cubemapImageInfo.imageView = cubemap->cubemapTextureImageView;
+            cubemapImageInfo.sampler = cubemap->cubemapSampler;
 
             std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
 

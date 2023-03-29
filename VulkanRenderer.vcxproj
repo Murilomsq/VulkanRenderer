@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\muted\Desktop\Useful libs\Vulkan\imGUI;C:\Users\muted\Desktop\Useful libs\Vulkan;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include;C:\VulkanSDK\1.3.239.0\Include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer;C:\Users\muted\Desktop\Useful libs\Vulkan\imGUI;C:\Users\muted\Desktop\Useful libs\Vulkan;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include;C:\VulkanSDK\1.3.239.0\Include;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/std:c++latest   /FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -107,7 +107,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\muted\Desktop\Useful libs\Vulkan\imGUI;C:\Users\muted\Desktop\Useful libs\Vulkan;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include;C:\VulkanSDK\1.3.239.0\Include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer;C:\Users\muted\Desktop\Useful libs\Vulkan\imGUI;C:\Users\muted\Desktop\Useful libs\Vulkan;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include;C:\VulkanSDK\1.3.239.0\Include;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/std:c++latest   /FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -126,7 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\muted\Desktop\Useful libs\Vulkan\imGUI;C:\Users\muted\Desktop\Useful libs\Vulkan;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include;C:\VulkanSDK\1.3.239.0\Include;C:\VulkanSDK\1.3.239.0\Include;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer;C:\Users\muted\Desktop\Useful libs\Vulkan\imGUI;C:\Users\muted\Desktop\Useful libs\Vulkan;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include;C:\VulkanSDK\1.3.239.0\Include;C:\VulkanSDK\1.3.239.0\Include;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/std:c++latest   /FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -145,7 +145,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\muted\Desktop\Useful libs\Vulkan\imGUI;C:\Users\muted\Desktop\Useful libs\Vulkan;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include;C:\VulkanSDK\1.3.239.0\Include;C:\VulkanSDK\1.3.239.0\Include;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer;C:\Users\muted\Desktop\Useful libs\Vulkan\imGUI;C:\Users\muted\Desktop\Useful libs\Vulkan;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include;C:\VulkanSDK\1.3.239.0\Include;C:\VulkanSDK\1.3.239.0\Include;C:\Users\muted\Desktop\Useful libs\Vulkan\glm;C:\Users\muted\Desktop\Useful libs\Vulkan\glfw-3.3.8.bin.WIN64\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/std:c++latest   /FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -167,7 +167,6 @@
     <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_tables.cpp" />
     <ClCompile Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui_widgets.cpp" />
     <ClCompile Include="command_buffer_utl.cpp" />
-    <ClCompile Include="cubemap.cpp" />
     <ClCompile Include="img_buff_memory_utl.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="vkimgui.cpp" />
