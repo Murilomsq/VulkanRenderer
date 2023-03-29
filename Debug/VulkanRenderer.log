@@ -1,7 +1,20 @@
 ﻿cl : linha de comando  warning D9025: substituindo '/std:c++17' com '/std:c++latest'
   cubemap.cpp
+  img_buff_memory_utl.cpp
   main.cpp
-C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(1225,1): warning C4267: 'argumento': conversão de 'size_t' para 'int', possível perda de dados
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(1403,10): error C2535: 'void HelloTriangleApplication::appCreateCubemapImageView(void)': função membro já definida ou declarada
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(1345,10): message : consulte a declaração de 'HelloTriangleApplication::appCreateCubemapImageView'
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(1201,17): error C2660: 'Cubemap::createCubemapImage': função não recebe 12 argumentos
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\cubemap.h(15,10): message : consulte a declaração de 'Cubemap::createCubemapImage'
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(1201,17): message : ao tentar corresponder a lista de argumentos '(_Ty, _Ty, uint32_t, VkSampleCountFlagBits, VkFormat, VkImageTiling, int, VkMemoryPropertyFlagBits, VkImage, VkDeviceMemory, VkDevice, VkPhysicalDevice)'
+          with
+          [
+              _Ty=int
+          ]
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(1227,1): warning C4267: 'argumento': conversão de 'size_t' para 'int', possível perda de dados
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(1404,9): error C3861: 'createCubemapImageView': identificador não encontrado
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(2107,30): error C2280: 'HelloTriangleApplication::HelloTriangleApplication(void)': tentando referenciar uma função excluída
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(2104,1): message : o compilador gerou 'HelloTriangleApplication::HelloTriangleApplication' aqui
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(2104,1): message : 'HelloTriangleApplication::HelloTriangleApplication(void)': a função foi implicitamente excluída porque membro de dados 'HelloTriangleApplication::cubemap' não tem um construtor padrão apropriado ou a resolução de sobrecarga era ambígua
+C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\main.cpp(233,13): message : consulte a declaração de 'HelloTriangleApplication::cubemap'
   Gerando Código...
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflita com uso de outras bibliotecas; use /NODEFAULTLIB:library
-  VulkanRenderer.vcxproj -> C:\Users\muted\source\repos\VulkanRenderer\x64\Debug\VulkanRenderer.exe

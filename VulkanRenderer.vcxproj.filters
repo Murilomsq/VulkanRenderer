@@ -77,6 +77,12 @@
     <ClCompile Include="command_buffer_utl.cpp">
       <Filter>Arquivos de Origem\Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="cubemap.cpp">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
+    <ClCompile Include="img_buff_memory_utl.cpp">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Desktop\Useful libs\Vulkan\imGUI\imgui.h">
@@ -105,6 +111,15 @@
     </ClInclude>
     <ClInclude Include="command_buffer_utl.h">
       <Filter>Arquivos de Cabeçalho\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="cubemap.h">
+      <Filter>Arquivos de Cabeçalho\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="img_buff_memory_utl.h">
+      <Filter>Arquivos de Cabeçalho\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="vulkan_device_base.h">
+      <Filter>Arquivos de Cabeçalho\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

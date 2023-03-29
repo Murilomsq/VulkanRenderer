@@ -192,6 +192,7 @@
     <ClInclude Include="cubemap.h" />
     <ClInclude Include="img_buff_memory_utl.h" />
     <ClInclude Include="vkimgui.h" />
+    <ClInclude Include="vulkan_device_base.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
