@@ -45,6 +45,9 @@
     <None Include="shaders\SkyboxShaders\skybox.vert">
       <Filter>Arquivos de Recurso</Filter>
     </None>
+    <None Include="iblconvolute.frag">
+      <Filter>Arquivos de Recurso</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -76,9 +79,6 @@
     </ClCompile>
     <ClCompile Include="command_buffer_utl.cpp">
       <Filter>Arquivos de Origem\Utilities</Filter>
-    </ClCompile>
-    <ClCompile Include="cubemap.cpp">
-      <Filter>Arquivos de Origem</Filter>
     </ClCompile>
     <ClCompile Include="img_buff_memory_utl.cpp">
       <Filter>Arquivos de Origem</Filter>

@@ -40,7 +40,7 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-const std::string MODEL_PATH = "models/bunny.obj";
+const std::string MODEL_PATH = "models/sphere.obj";
 const std::string TEXTURE_PATH = "textures/viking_room.png";
 const std::string CUBEMAP_PATH = "textures/cubemap/";
 

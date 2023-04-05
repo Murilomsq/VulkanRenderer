@@ -13,6 +13,8 @@ layout( binding = 1) uniform MyUniformBlock {
   vec3 lightColor;
 }ubo;
 
+layout(binding = 2) uniform samplerCube envMap;
+
 layout(location = 0) in vec2 TexCoords;
 layout(location = 1) in vec3 WorldPos;
 layout(location = 2) in vec3 Normal;
@@ -67,6 +69,10 @@ void main() {
 
     vec3 Lo = vec3(0.0);
 
+    vec3 reflection = reflect(-V, N);
+    vec3 envColor = texture(envMap, reflection).rgb;
+    
+
     //Reflectance equation
     vec3 L = normalize(ubo.lightPosition - WorldPos);
     vec3 H = normalize(V + L);
@@ -79,6 +85,7 @@ void main() {
    float NDF = DistributionGGX(N, H, ubo.roughness);
    float G = GeometrySmith(N, V, L, ubo.roughness);
    vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+   vec3 envContrib = mix(vec3(0.0), envColor, ubo.metallic);
 
    vec3 kS = F;
    vec3 kD = vec3(1.0) - kS;
@@ -90,9 +97,9 @@ void main() {
 
    // add to outgoing radiance L0
    float NdotL = max(dot(N,L), 0.0);
-   Lo +=  (kD * ubo.albedo/ PI + specular) * radiance * NdotL;
+   Lo +=  (kD * ubo.albedo/ PI + specular*envColor) * radiance * NdotL;
     
-   vec3 ambient = vec3(0.03) * ubo.albedo * ubo.ao;
+   vec3 ambient = mix(vec3(0.03) * ubo.albedo * ubo.ao,envContrib, F);
    vec3 color = ambient + Lo;
 
    color = color / (color + vec3(1.0)); //HDR tonemapping
