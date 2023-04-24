@@ -27,6 +27,13 @@ public:
         createCubeMapSampler(mipLevels);
     }
 
+    ~Cubemap() {
+        vkDestroySampler(device, cubemapSampler, nullptr);
+        vkDestroyImageView(device, cubemapTextureImageView, nullptr);
+        vkFreeMemory(device, cubemapTextureImageMemory, nullptr);
+        vkDestroyImage(device, cubemapTextureImage, nullptr);
+    }
+
     void createCubemapImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties) {
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

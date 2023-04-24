@@ -36,6 +36,7 @@
 #include <optional>
 #include <set>
 #include <unordered_map>
+#include <glm/gtc/type_ptr.hpp>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -1651,6 +1652,8 @@ private:
         ImGui::SliderFloat("mettalic", &frag.metallic, 0.0f, 1.0f);
         ImGui::SliderFloat("roughness", &frag.roughness, 0.0f, 1.0f);
         ImGui::SliderFloat("ambient occlusion", &frag.ao, 0.0f, 1.0f);
+
+        ImGui::ColorPicker3("Albedo", glm::value_ptr(frag.albedo));
 
         ImGui::Render();
         updateUniformBuffer(currentFrame);
