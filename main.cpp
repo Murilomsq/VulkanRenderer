@@ -18,6 +18,7 @@
 #include "command_buffer_utl.h"
 #include "img_buff_memory_utl.h"
 #include "cubemap.h"
+#include "texture.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -231,7 +232,8 @@ private:
 
     VkCommandPool commandPool;
 
-    Cubemap* cubemap = nullptr;
+    std::unique_ptr<Cubemap> cubemap = nullptr;
+    std::unique_ptr<Texture> texture = nullptr;
 
     VkImage colorImage;
     VkDeviceMemory colorImageMemory;
@@ -246,6 +248,8 @@ private:
     VkDeviceMemory textureImageMemory;
     VkImageView textureImageView;
     VkSampler textureSampler;
+
+    
 
     ImGui_ImplVulkanH_Window mainWindowData;
 
@@ -379,6 +383,7 @@ private:
         createTextureImageView();
         createTextureSampler();
         createCubemap();
+        createTexture();
         loadModel();
         createVertexBuffer();
         createIndexBuffer();
@@ -444,9 +449,6 @@ private:
 
         vkDestroySampler(device, textureSampler, nullptr);
         vkDestroyImageView(device, textureImageView, nullptr);
-
-        vkDestroySampler(device, cubemap->cubemapSampler, nullptr);
-        vkDestroyImageView(device, cubemap->cubemapTextureImageView, nullptr);
 
         vkDestroyImage(device, textureImage, nullptr);
         vkFreeMemory(device, textureImageMemory, nullptr);
@@ -1103,7 +1105,11 @@ private:
     }
 
     void createCubemap() {
-        cubemap = new Cubemap(device, physicalDevice, mipLevels, commandPool, graphicsQueue);
+        cubemap = std::make_unique<Cubemap>(device, physicalDevice, mipLevels, commandPool, graphicsQueue);
+    }
+
+    void createTexture() {
+        texture = std::make_unique<Texture>(device, physicalDevice, TEXTURE_PATH, commandPool, graphicsQueue);
     }
 
     void createColorResources() {
@@ -1195,6 +1201,7 @@ private:
 
         return VK_SAMPLE_COUNT_1_BIT;
     }
+
 
     void createTextureImageView() {
         textureImageView = appCreateImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);

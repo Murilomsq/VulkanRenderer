@@ -190,6 +190,7 @@
     <ClInclude Include="command_buffer_utl.h" />
     <ClInclude Include="cubemap.h" />
     <ClInclude Include="img_buff_memory_utl.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="vkimgui.h" />
     <ClInclude Include="vulkan_device_base.h" />
   </ItemGroup>
