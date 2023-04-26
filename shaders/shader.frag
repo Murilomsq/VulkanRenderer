@@ -2,6 +2,7 @@
 
 #define PI 3.14159265359
 
+layout(binding = 3) uniform sampler2D texSampler;
 
 layout( binding = 1) uniform MyUniformBlock {
   vec3 camPos;

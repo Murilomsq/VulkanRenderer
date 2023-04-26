@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <vector>
 #include <cmath>
+#include <iostream>
 
 #include "img_buff_memory_utl.h"
 #include "vulkan_device_base.h"
@@ -26,11 +27,11 @@ public:
         createTextureSampler();
     }
 
-    ~Texture() {
-        vkDestroySampler(device, textureSampler, nullptr);
+    void cleanup() {
         vkDestroyImageView(device, textureImageView, nullptr);
-        vkFreeMemory(device, textureImageMemory, nullptr);
+        vkDestroySampler(device, textureSampler, nullptr);
         vkDestroyImage(device, textureImage, nullptr);
+        vkFreeMemory(device, textureImageMemory, nullptr);
     }
 
 

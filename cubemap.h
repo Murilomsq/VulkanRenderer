@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <vector>
 #include <cmath>
+#include <iostream>
 
 #include "img_buff_memory_utl.h"
 #include "vulkan_device_base.h"
@@ -12,6 +13,7 @@
 class Cubemap : public VulkanDeviceBase {
 
 public:
+    uint32_t mipLevels;
     VkImage cubemapTextureImage;
     VkDeviceMemory cubemapTextureImageMemory;
     VkImageView cubemapTextureImageView;
@@ -19,22 +21,22 @@ public:
 
 
     Cubemap(VkDevice device, VkPhysicalDevice physicalDevice) : VulkanDeviceBase(device, physicalDevice) {}
-    Cubemap(VkDevice device, VkPhysicalDevice physicalDevice, uint32_t mipLevels, VkCommandPool cmdPool, VkQueue queue) :
+    Cubemap(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool cmdPool, VkQueue queue) :
         VulkanDeviceBase(device, physicalDevice)
     {
-        createCubemapTextureImage(mipLevels, cmdPool, queue);
+        createCubemapTextureImage(cmdPool, queue);
         createCubemapImageView();
-        createCubeMapSampler(mipLevels);
+        createCubeMapSampler();
     }
 
-    ~Cubemap() {
+    void cleanup() {
         vkDestroySampler(device, cubemapSampler, nullptr);
         vkDestroyImageView(device, cubemapTextureImageView, nullptr);
         vkFreeMemory(device, cubemapTextureImageMemory, nullptr);
         vkDestroyImage(device, cubemapTextureImage, nullptr);
     }
 
-    void createCubemapImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties) {
+    void createCubemapImage(uint32_t width, uint32_t height, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties) {
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -70,7 +72,7 @@ public:
         vkBindImageMemory(this->device, cubemapTextureImage, cubemapTextureImageMemory, 0);
     }
 
-    void createCubeMapSampler(uint32_t mipLevels) {
+    void createCubeMapSampler() {
         VkPhysicalDeviceProperties properties{};
         vkGetPhysicalDeviceProperties(physicalDevice, &properties);
 
@@ -97,9 +99,10 @@ public:
         }
     }
 
-    void createCubemapTextureImage(uint32_t mipLevels, VkCommandPool commandPool, VkQueue queue) {
+    void createCubemapTextureImage(VkCommandPool commandPool, VkQueue queue) {
 
         std::vector<int> texWidth(6), texHeight(6), texChannels(6);
+        mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth[0], texHeight[0])))) + 1;
 
         stbi_set_flip_vertically_on_load(false);
         std::vector<stbi_uc*> pixels = {
@@ -112,12 +115,12 @@ public:
         };
 
 
-        createCubemapImage(texWidth[0], texHeight[0], mipLevels, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        createCubemapImage(texWidth[0], texHeight[0], VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         for (size_t i = 0; i < 6; i++)
         {
             VkDeviceSize imageSize = texWidth[i] * texHeight[i] * 4;
-            mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth[i], texHeight[i])))) + 1;
+            
 
             if (!pixels[i]) {
                 throw std::runtime_error("failed to load texture image!");
