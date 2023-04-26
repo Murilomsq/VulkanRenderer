@@ -19,6 +19,7 @@
 #include "img_buff_memory_utl.h"
 #include "cubemap.h"
 #include "texture.h"
+#include "hdr_equiretangular_map.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
@@ -44,6 +45,7 @@ const uint32_t HEIGHT = 600;
 
 const std::string MODEL_PATH = "models/bunny.obj";
 const std::string TEXTURE_PATH = "textures/viking_room.png";
+const std::string EQUIRETANGULAR_MAP = "textures/eq.hdr";
 const std::string CUBEMAP_PATH = "textures/cubemap/";
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -234,6 +236,7 @@ private:
 
     std::unique_ptr<Cubemap> cubemap = nullptr;
     std::unique_ptr<Texture> texture = nullptr;
+    std::unique_ptr<HDREquiretangularMap> equiretangularMap= nullptr;
 
     VkImage colorImage;
     VkDeviceMemory colorImageMemory;
@@ -373,6 +376,8 @@ private:
         createFramebuffers();
         createCubemap();
         createTexture();
+        createTexture();
+        createHDRMap();
         loadModel();
         createVertexBuffer();
         createIndexBuffer();
@@ -1104,6 +1109,10 @@ private:
 
     void createTexture() {
         texture = std::make_unique<Texture>(device, physicalDevice, TEXTURE_PATH, commandPool, graphicsQueue);
+    }
+
+    void createHDRMap() {
+        equiretangularMap = std::make_unique<HDREquiretangularMap>(device, physicalDevice, EQUIRETANGULAR_MAP, commandPool, graphicsQueue);
     }
 
     void createColorResources() {

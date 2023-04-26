@@ -121,5 +121,8 @@
     <ClInclude Include="texture.h">
       <Filter>Arquivos de Cabeçalho\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="hdr_equiretangular_map.h">
+      <Filter>Arquivos de Cabeçalho\Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

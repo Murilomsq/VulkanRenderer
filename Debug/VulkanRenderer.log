@@ -1,4 +1,4 @@
-﻿cl : linha de comando  warning D9025: substituindo '/std:c++17' com '/std:c++latest'
+﻿cl : linha de comando  warning D9025: substituindo '/std:c++20' com '/std:c++latest'
   main.cpp
 C:\Users\muted\source\repos\VulkanRenderer\VulkanRenderer\cubemap.h(145,1): warning C4267: 'argumento': conversão de 'size_t' para 'int', possível perda de dados
   VulkanRenderer.vcxproj -> C:\Users\muted\source\repos\VulkanRenderer\x64\Debug\VulkanRenderer.exe
